@@ -2,7 +2,7 @@ version: "3"
 services:
   reverseproxy:
     build:
-      context: .
+      context: ../../reverseproxy
     image: tamasdinh/reverseproxy 
   backend_user:
     build:
@@ -15,4 +15,4 @@ services:
   frontend:
     build:
       context: ../../udacity-c3-frontend  
-    image: tamasdinh/udacity-frontend:local
+    image: tamasdinh/udacity-frontend
