@@ -1,53 +1,82 @@
-# Udagram Image Filtering Microservice
+# Image sharing Microservice
 
-Udagram is a simple cloud application developed alongside the Udacity Cloud Engineering Nanodegree. It allows users to register and log into a web client, post photos to the feed, and process photos using an image filtering microservice.
+## Table of Contents
 
-The project is split into three parts:
-1. [The Simple Frontend](/udacity-c3-frontend)
-A basic Ionic client web application which consumes the RestAPI Backend. 
-2. [The RestAPI Feed Backend](/udacity-c3-restapi-feed), a Node-Express feed microservice.
-3. [The RestAPI User Backend](/udacity-c3-restapi-user), a Node-Express user microservice.
+* [Project Goals](#Project-goals)
+* [Getting Started](#Getting-started)
+* [Built with](#Built-with)
+* [Authors](#Authors)
 
-## Getting Setup
+## Project goals
 
-> _tip_: this frontend is designed to work with the RestAPI backends). It is recommended you stand up the backend first, test using Postman, and then the frontend should integrate.
+The goal of the project was to build simple image sharing app that runs on Kubernetes in a microservices deployment.
 
-### Installing Node and NPM
-This project depends on Nodejs and Node Package Manager (NPM). Before continuing, you must download and install Node (NPM is included) from [https://nodejs.com/en/download](https://nodejs.org/en/download/).
+The key views / functionalities are:
+* ```Signup and Login```
+  - the user can sign up with an email address and a password
+  - user can log in, in which case he/she can upload pictures with a caption
+* ```Home```
+  - when visiting the home page, the feed of previously uploaded images is displayed
+  - if the user was previously logged in, the app retains the log in from the same device
+* ```Upload images```
+  - the user can choose to upload images with captions if he/she has logged in
 
-### Installing Ionic Cli
-The Ionic Command Line Interface is required to serve and build the frontend. Instructions for installing the CLI can be found in the [Ionic Framework Docs](https://ionicframework.com/docs/installation/cli).
+## Installing the project
 
-### Installing project dependencies
+### 1. Install prerequisites
+* [Docker](https://www.docker.com/products/docker-desktop)
+* [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
+* [Eksctl](https://eksctl.io/introduction/installation/)
+* [Travis CI](travis-ci.com)
 
-This project uses NPM to manage software dependencies. NPM Relies on the package.json file located in the root of this repository. After cloning, open your terminal and run:
+### 2. Clone / download project and set up images / Kubernetes
+
+Clone the project repo: ```git clone https://github.com/tamasdinh/image-microservice```
+
+```cd``` into the cloned project folder, then rename the .env_SAMPLE file to .env and fill in the necessary data. Then go to ```udacity-c3-deployment/k8s``` and edit the same data in the ```aws-secret.yaml```, ```env-configmap.yaml``` and ```env-secret.yaml``` configuration files.
+
+After the above, you can simply run ```bash build.sh``` from the project root folder, which handles your environment variables, builds the Docker images, pushes the Docker images to your Docker Hub repo, creates the control plane on AWS EKS and configures the pods.
+
+Afterwards you can run
 ```bash
-npm install
+kubectl get all
 ```
->_tip_: **npm i** is shorthand for **npm install**
+which will show you in the terminal all pods, deployments and services in your newly created Kubernetes cluster.
 
-### Setup Backend Node Environment
-You'll need to create a new node server. Open a new terminal within the project directory and run:
-1. Initialize a new project: `npm init`
-2. Install express: `npm i express --save`
-3. Install typescript dependencies: `npm i ts-node-dev tslint typescript  @types/bluebird @types/express @types/node --save-dev`
-4. Look at the `package.json` file from the RestAPI repo and copy the `scripts` block into the auto-generated `package.json` in this project. This will allow you to use shorthand commands like `npm run dev`
+### 3. Using the app
 
+If you wish to try the app via the Kubernetes deployment, you can simply port-forward the frontend and the reverse-proxy services by running
+```sh
+kubectl port-forward service/frontend 8100:8100
+kubectl port-forward service/reverseproxy 8080:8080
+```
+and then you can open
+```
+http://localhost:8100
+```
+in your browser, which will give you the frontend. The frontend is configured to look for backend services on ```localhost:8080``` where the ```backend-feed``` and ```backend-user``` services have been port-forwarded via the ```reverseproxy``` service.
 
-### Configure The Backend Endpoint
-Ionic uses enviornment files located in `./src/enviornments/enviornment.*.ts` to load configuration variables at runtime. By default `environment.ts` is used for development and `enviornment.prod.ts` is used for produciton. The `apiHost` variable should be set to your server url either locally or in the cloud.
-
-***
-### Running the Development Server
-Ionic CLI provides an easy to use development server to run and autoreload the frontend. This allows you to make quick changes and see them in real time in your browser. To run the development server, open terminal and run:
-
+Alternatively, you can try the local Docker implementation by ```cd```-ing into ```udacity-c3-deployment/docker``` and running
 ```bash
-ionic serve
-```
+docker-compose up
+``` 
+(you have previously built the Docker images so no building step is required here).
 
-### Building the Static Frontend Files
-Ionic CLI can build the frontend into static HTML/CSS/JavaScript files. These files can be uploaded to a host to be consumed by users on the web. Build artifacts are located in `./www`. To build from source, open terminal and run:
-```bash
-ionic build
-```
-***
+### 4. Set up Travis CI tool
+
+If you wish, you can also add CI/CD functionality to the project easily by integrating ```Travis CI``` with your ```GitHub``` repo.
+
+First, create a ```Github``` repo with the downloaded project pack (or alternatively, fork my repo). Then go to [Travis CI](travis-ci.com) and follow the instructions to integrate ```Travis CI``` with your ```GitHub``` repo. The necessary configuration file is already included in the project root folder (```travis.yml```), so without doing anything else, you can effectuate automatic builds via ```Travis CI``` whenever you make a new commit to your ```GitHub``` repo.
+
+```ENJOY!!!```
+
+## Built With
+
+* [Docker](https://reactjs.org) - An excellent, state-based UI framework for Javascript, developed and open-sourced by the Facebook UI Team
+* [Kubernetes](https://reacttraining.com/react-router/web/guides/quick-start) - Browser routing for React apps
+* [eksctl](https://redux.js.org) - A Predictable State Container for JS Apps
+* [AWS Elastic Kubernetes Service (EKS)](https://www.google.com/chrome) - Probably you already heard of it... Has incredibly useful developer tools built-in, including React Component Profiler.
+
+## Authors
+
+* **Tamas Dinh** - [LinkedIn profile](https://www.linkedin.com/in/tamasdinh/)
