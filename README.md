@@ -58,6 +58,7 @@ in your browser, which will give you the frontend. The frontend is configured to
 
 Alternatively, you can try the local Docker implementation by ```cd```-ing into ```udacity-c3-deployment/docker``` and running
 ```bash
+source ../../.env
 docker-compose up
 ``` 
 (you have previously built the Docker images so no building step is required here).
